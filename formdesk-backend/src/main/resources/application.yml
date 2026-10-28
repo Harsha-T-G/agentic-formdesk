@@ -1,0 +1,36 @@
+server:
+  address: ${SERVER_ADDRESS:127.0.0.1}
+  port: ${SERVER_PORT:8080}
+spring:
+  application:
+    name: formdesk
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://127.0.0.1:5434/formdesk}
+    username: ${DB_USERNAME:formdesk}
+    password: ${DB_PASSWORD:formdesk_local}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+    deserialization:
+      fail-on-unknown-properties: true
+  flyway:
+    enabled: true
+springdoc:
+  api-docs:
+    path: /openapi.json
+    version: OPENAPI_3_0
+  swagger-ui:
+    path: /api-docs
+    disable-swagger-default-url: true
+formdesk:
+  allowed-origins: ${FRONTEND_ORIGINS:http://127.0.0.1:5173,http://localhost:5173}

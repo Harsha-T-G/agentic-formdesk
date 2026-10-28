@@ -1,0 +1,4 @@
+interface:
+  display_name: "Formdesk test-driven changes"
+  short_description: "Apply the formdesk-tdd workflow to this repository"
+  default_prompt: "Use $formdesk-tdd to implement this Formdesk behavior with a focused regression test."

@@ -1,0 +1,17 @@
+package com.formdesk.submission;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import java.util.Locale;
+
+public enum SubmissionStatus {
+    DRAFT, SUBMITTED;
+
+    @JsonValue
+    public String value() { return name().toLowerCase(Locale.ROOT); }
+
+    @JsonCreator
+    public static SubmissionStatus parse(String value) {
+        return valueOf(value.toUpperCase(Locale.ROOT));
+    }
+}

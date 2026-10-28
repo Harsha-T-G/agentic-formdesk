@@ -1,0 +1,80 @@
+{
+  "id": "contact",
+  "name": "Contact form",
+  "description": "Contact details and a request.",
+  "fields": [
+    {
+      "name": "first_name",
+      "label": "First name",
+      "type": "text",
+      "required": true,
+      "max_length": 80
+    },
+    {
+      "name": "last_name",
+      "label": "Last name",
+      "type": "text",
+      "required": true,
+      "max_length": 80
+    },
+    {
+      "name": "email",
+      "label": "Email address",
+      "type": "email",
+      "required": true,
+      "max_length": 254
+    },
+    {
+      "name": "phone",
+      "label": "Phone number",
+      "type": "tel",
+      "required": false,
+      "max_length": 40
+    },
+    {
+      "name": "company",
+      "label": "Company",
+      "type": "text",
+      "required": false,
+      "max_length": 120
+    },
+    {
+      "name": "role",
+      "label": "Your role",
+      "type": "select",
+      "required": false,
+      "options": [
+        "Founder",
+        "Engineer",
+        "Designer",
+        "Student",
+        "Other"
+      ]
+    },
+    {
+      "name": "request_type",
+      "label": "What brings you here?",
+      "type": "select",
+      "required": true,
+      "options": [
+        "general",
+        "project",
+        "feedback"
+      ]
+    },
+    {
+      "name": "message",
+      "label": "Your message",
+      "type": "textarea",
+      "required": true,
+      "min_length": 10,
+      "max_length": 2000
+    },
+    {
+      "name": "consent",
+      "label": "I agree to be contacted about this request.",
+      "type": "checkbox",
+      "required": true
+    }
+  ]
+}

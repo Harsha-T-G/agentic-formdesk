@@ -1,0 +1,29 @@
+data/
+.local-evidence/
+node_modules/
+.DS_Store
+**/target/
+**/dist/
+**/*.tsbuildinfo
+.env
+.env.*
+!.env.example
+**/data/
+.local/
+*.log
+.idea/
+*.iml
+
+# Publish only maintained capability specifications from docs.
+/docs/*
+!/docs/specs/
+/docs/specs/*
+!/docs/specs/*.md
+
+# Local test output and databases.
+coverage/
+playwright-report/
+test-results/
+*.sqlite
+*.sqlite3
+*.db

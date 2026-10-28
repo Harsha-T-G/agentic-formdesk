@@ -1,0 +1,4 @@
+interface:
+  display_name: "Formdesk specification"
+  short_description: "Apply the formdesk-spec workflow to this repository"
+  default_prompt: "Use $formdesk-spec to define the contract for this Formdesk change before implementing it."

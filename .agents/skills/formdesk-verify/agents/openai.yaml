@@ -1,0 +1,4 @@
+interface:
+  display_name: "Formdesk verification"
+  short_description: "Apply the formdesk-verify workflow to this repository"
+  default_prompt: "Use $formdesk-verify to check this Formdesk change against its spec and run the required verification."
