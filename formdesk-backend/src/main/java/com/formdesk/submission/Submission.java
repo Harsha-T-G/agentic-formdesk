@@ -1,8 +1,10 @@
 package com.formdesk.submission;
 
-import jakarta.persistence.*;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
+
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "submissions")
@@ -50,14 +52,19 @@ public class Submission {
         firstName = input.firstName(); lastName = input.lastName(); email = input.email();
         phone = input.phone(); company = input.company(); role = input.role();
         requestType = input.requestType(); message = input.message(); consent = Boolean.TRUE.equals(input.consent());
-        if (nextStatus == SubmissionStatus.SUBMITTED && submittedAt == null) submittedAt = Instant.now();
+        if (nextStatus == SubmissionStatus.SUBMITTED && submittedAt == null) submittedAt = databaseTimestamp();
     }
 
     @PrePersist
-    void created() { createdAt = Instant.now(); updatedAt = createdAt; }
+    void created() { createdAt = databaseTimestamp(); updatedAt = createdAt; }
 
     @PreUpdate
-    void updated() { updatedAt = Instant.now(); }
+    void updated() { updatedAt = databaseTimestamp(); }
+
+    private static Instant databaseTimestamp() {
+        // Match PostgreSQL timestamp precision before returning a newly saved entity.
+        return Instant.now().truncatedTo(ChronoUnit.MICROS);
+    }
 
     SubmissionRequest asRequest() {
         return new SubmissionRequest(formId, status, firstName, lastName, email, phone, company, role, requestType, message, consent);

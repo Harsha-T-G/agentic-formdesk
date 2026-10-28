@@ -2,10 +2,12 @@ package com.formdesk;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.formdesk.submission.SubmissionRepository;
+import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,6 +19,8 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.mockStatic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -58,6 +62,38 @@ class SubmissionApiTest {
         mvc.perform(get("/api/v1/submissions/{id}", id)).andExpect(status().isOk()).andExpect(jsonPath("$.data.first_name").value("Alex")).andExpect(jsonPath("$.data.status").value("submitted"));
         assertThat(jdbc.queryForObject("SELECT first_name FROM submissions WHERE id = ?::uuid", String.class, id)).isEqualTo("Alex");
         assertThat(jdbc.queryForObject("SELECT version()", String.class)).contains("PostgreSQL");
+    }
+
+    @Test
+    void returnsPersistedTimestampsWithANanosecondClock() throws Exception {
+        // Exercise sub-microsecond clock precision even on hosts whose clock is coarser.
+        Instant firstTick = Instant.parse("2026-10-28T12:34:56.999999999Z");
+        Instant secondTick = firstTick.plusSeconds(1);
+        try (MockedStatic<Instant> clock = mockStatic(Instant.class, CALLS_REAL_METHODS)) {
+            clock.when(Instant::now).thenReturn(firstTick);
+
+            var createdResult = mvc.perform(post("/api/v1/submissions")
+                            .contentType("application/json").content(mapper.writeValueAsBytes(sample())))
+                    .andExpect(status().isCreated()).andReturn();
+            var created = mapper.readTree(createdResult.getResponse().getContentAsString());
+            String id = created.at("/data/id").asText();
+            var readResult = mvc.perform(get("/api/v1/submissions/{id}", id))
+                    .andExpect(status().isOk()).andReturn();
+            assertThat(mapper.readTree(readResult.getResponse().getContentAsString())).isEqualTo(created);
+
+            // A later update changes updated_at, while creation and submission times stay stable.
+            clock.when(Instant::now).thenReturn(secondTick);
+            var updatedResult = mvc.perform(patch("/api/v1/submissions/{id}", id)
+                            .contentType("application/json").content("{\"company\":\"Changed company\"}"))
+                    .andExpect(status().isOk()).andReturn();
+            var updated = mapper.readTree(updatedResult.getResponse().getContentAsString());
+            var rereadResult = mvc.perform(get("/api/v1/submissions/{id}", id))
+                    .andExpect(status().isOk()).andReturn();
+            assertThat(mapper.readTree(rereadResult.getResponse().getContentAsString())).isEqualTo(updated);
+            assertThat(updated.at("/data/created_at")).isEqualTo(created.at("/data/created_at"));
+            assertThat(updated.at("/data/submitted_at")).isEqualTo(created.at("/data/submitted_at"));
+            assertThat(updated.at("/data/updated_at")).isNotEqualTo(created.at("/data/updated_at"));
+        }
     }
 
     @Test

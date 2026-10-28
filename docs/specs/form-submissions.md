@@ -13,7 +13,7 @@ This contract covers the contact form, draft/submission lifecycle, inbox, and AP
 - Submitted records require names, valid email, request type, a trimmed message of at least 10 Unicode code points, and explicit consent.
 - Constraints and choices are defined in `SubmissionRequest`, `SubmissionService`, and `contact-form.json`; keep their rendered metadata consistent.
 - Create defaults to submitted. PATCH merges supplied fields and preserves omitted values/status. Null clears optional values. Submitted records cannot return to draft.
-- Completing a draft preserves its UUID. Creation time and the original submission timestamp remain stable on later edits.
+- Completing a draft preserves its UUID. Creation time and the original submission timestamp remain stable on later edits. API timestamps use PostgreSQL microsecond precision so write responses match subsequent reads, including on hosts with nanosecond clocks.
 - A successful save must be acknowledged by the API before the UI shows a receipt. Browser storage remembers only the draft UUID; reloading retrieves its data from PostgreSQL.
 - Background reads must preserve unsaved edits. The sample-details control uses fictional data and leaves consent unchecked.
 - The inbox supports status filters, name/email/company search, pagination, details, draft continuation, deletion confirmation, and CSV export.
